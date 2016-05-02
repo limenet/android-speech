@@ -2,7 +2,7 @@
 
 *Based on [@nolanlawson](https://github.com/nolanlawson/SimpleTalker)*
 
-I made a few modifications.
+I made a few modifications. And didn't care much about error handling.
 
 ## Usage
 ```bash
