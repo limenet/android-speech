@@ -6,5 +6,5 @@ I made a few modifications.
 
 ## Usage
 ```bash
-adb shell "am start -n ch.limenet.android_speech.android_speech/.MainActivity -e 'text' 'It works! yay!'"
+curl --data "text=You just retrieved an item from the freezer. It was ground beef." http://10.0.0.35:8765
 ```
