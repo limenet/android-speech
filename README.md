@@ -1,6 +1,6 @@
 # SimpleTalker
 
-**All credits go to [@nolanlawson](https://github.com/nolanlawson/SimpleTalker)!
+*Based on [@nolanlawson](https://github.com/nolanlawson/SimpleTalker)*
 
 I made a few modifications.
 
