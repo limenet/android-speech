@@ -1,44 +1,42 @@
 package ch.limenet.android_speech.android_speech;
 
-import android.net.Uri;
+import android.content.Context;
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Locale;
 
-import android.content.Intent;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnInitListener;
+import android.util.Log;
 import android.widget.TextView;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Properties;
 
 import android.net.wifi.WifiManager;
 import android.os.Handler;
 
-import com.google.android.gms.appindexing.Action;
-import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 
 import fi.iki.elonen.NanoHTTPD;
 
-public class MainActivity extends AppCompatActivity implements OnInitListener {
+public class MainActivity extends AppCompatActivity {
 
 
     public static final String EXTRA_TEXT = "text";
 
     private TextView textView;
-    private TextToSpeech textToSpeech;
 
     private static final int PORT = 8765;
     private static final int HTTP_OK = 200;
     private MyHTTPD server;
     private WifiManager.WifiLock wifiLock;
     private Handler handler = new Handler();
+    private HashMap<String, TextToSpeech> ttsEngines;
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
      * See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -57,7 +55,7 @@ public class MainActivity extends AppCompatActivity implements OnInitListener {
         wifiLock.acquire();
 
         int ipAddress = wifiManager.getConnectionInfo().getIpAddress();
-        final String formattedIpAddress = String.format("%d.%d.%d.%d", (ipAddress & 0xff), (ipAddress >> 8 & 0xff),
+        final String formattedIpAddress = String.format(Locale.US, "%d.%d.%d.%d", (ipAddress & 0xff), (ipAddress >> 8 & 0xff),
                 (ipAddress >> 16 & 0xff), (ipAddress >> 24 & 0xff));
         setText("Please access http://" + formattedIpAddress + ":" + PORT);
 
@@ -67,15 +65,15 @@ public class MainActivity extends AppCompatActivity implements OnInitListener {
             e.printStackTrace();
         }
 
-        textToSpeech = new TextToSpeech(this, this);
-        textToSpeech.setLanguage(Locale.US);
+        ttsEngines = new HashMap<String, TextToSpeech>();
+        ttsEngines.put("en", new TtsLocale(Locale.US, this.getApplicationContext()).tts);
+        ttsEngines.put("de", new TtsLocale(Locale.GERMAN, this.getApplicationContext()).tts);
+
     }
 
-    public void onInit(int initStatus) {
-    }
-
-    private void speak(String text) {
-        textToSpeech.speak(text, TextToSpeech.QUEUE_ADD, null);
+    private void speak(String loc, String text) {
+        setText(loc + "\n" + text);
+        ttsEngines.get(loc).speak(text, TextToSpeech.QUEUE_ADD, null);
     }
 
     @Override
@@ -91,10 +89,12 @@ public class MainActivity extends AppCompatActivity implements OnInitListener {
     @Override
     protected void onDestroy() {
         //Close the Text to Speech Library
-        if (textToSpeech != null) {
 
-            textToSpeech.stop();
-            textToSpeech.shutdown();
+        if (ttsEngines != null) {
+            for (TextToSpeech ttsEngine : ttsEngines.values()) {
+                ttsEngine.stop();
+                ttsEngine.shutdown();
+            }
         }
         if (server != null) {
             server.stop();
@@ -145,11 +145,27 @@ public class MainActivity extends AppCompatActivity implements OnInitListener {
             String uri = session.getUri();
             Map<String, String> params = session.getParms();
             String pText = params.get("text");
-            setText(pText);
-            speak(pText);
+            String pLoc = params.get("locale");
+            speak(pLoc, pText);
             return new NanoHTTPD.Response(Response.Status.OK, "text/plain", pText);
         }
+    }
 
+    private class TtsLocale implements OnInitListener {
+        private Locale loc;
+        public TextToSpeech tts;
+
+        public TtsLocale(Locale loc, Context context) {
+            this.loc = loc;
+            tts = new TextToSpeech(context, this);
+        }
+
+        public void onInit(int initStatus) {
+            if (initStatus == TextToSpeech.SUCCESS) {
+                Log.e("TTS", "TTS inited");
+                tts.setLanguage(Locale.US);
+            }
+        }
     }
 
 }
