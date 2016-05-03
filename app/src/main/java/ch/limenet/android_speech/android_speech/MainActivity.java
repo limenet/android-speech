@@ -1,12 +1,10 @@
 package ch.limenet.android_speech.android_speech;
 
 import android.content.Context;
-import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Locale;
 
 import android.speech.tts.TextToSpeech;
