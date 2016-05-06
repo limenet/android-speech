@@ -71,7 +71,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void speak(String loc, String text) {
         setText(loc + "\n" + text);
-        ttsEngines.get(loc).speak(text, TextToSpeech.QUEUE_ADD, null);
+        CharSequence cs = text;
+        ttsEngines.get(loc).speak(cs, TextToSpeech.QUEUE_ADD, null, loc+text);
     }
 
     @Override
@@ -160,8 +161,7 @@ public class MainActivity extends AppCompatActivity {
 
         public void onInit(int initStatus) {
             if (initStatus == TextToSpeech.SUCCESS) {
-                Log.e("TTS", "TTS inited");
-                tts.setLanguage(Locale.US);
+                tts.setLanguage(loc);
             }
         }
     }
