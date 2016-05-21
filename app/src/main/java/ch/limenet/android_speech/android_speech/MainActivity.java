@@ -1,6 +1,7 @@
 package ch.limenet.android_speech.android_speech;
 
 import android.content.Context;
+import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
@@ -72,7 +73,11 @@ public class MainActivity extends AppCompatActivity {
     private void speak(String loc, String text) {
         setText(loc + "\n" + text);
         CharSequence cs = text;
-        ttsEngines.get(loc).speak(cs, TextToSpeech.QUEUE_ADD, null, loc+text);
+        if (Build.VERSION.SDK_INT >= 21) {
+            ttsEngines.get(loc).speak(cs, TextToSpeech.QUEUE_ADD, null, loc + text);
+        } else {
+            ttsEngines.get(loc).speak(text, TextToSpeech.QUEUE_ADD, null);
+        }
     }
 
     @Override
