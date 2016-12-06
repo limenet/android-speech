@@ -17,31 +17,14 @@ import java.io.IOException;
 import java.util.Map;
 
 import android.net.wifi.WifiManager;
-import android.os.Handler;
-
-import com.google.android.gms.common.api.GoogleApiClient;
-
 import fi.iki.elonen.NanoHTTPD;
 
 public class MainActivity extends AppCompatActivity {
-
-
-    public static final String EXTRA_TEXT = "text";
-
     private TextView textView;
-
     private static final int PORT = 8765;
-    private static final int HTTP_OK = 200;
     private MyHTTPD server;
     private WifiManager.WifiLock wifiLock;
-    private Handler handler = new Handler();
     private HashMap<String, TextToSpeech> ttsEngines;
-    /**
-     * ATTENTION: This was auto-generated to implement the App Indexing API.
-     * See https://g.co/AppIndexing/AndroidStudio for more information.
-     */
-    private GoogleApiClient client;
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -72,9 +55,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void speak(String loc, String text) {
         setText(loc + "\n" + text);
-        CharSequence cs = text;
         if (Build.VERSION.SDK_INT >= 21) {
-            ttsEngines.get(loc).speak(cs, TextToSpeech.QUEUE_ADD, null, loc + text);
+            ttsEngines.get(loc).speak(text, TextToSpeech.QUEUE_ADD, null, loc + text);
         } else {
             ttsEngines.get(loc).speak(text, TextToSpeech.QUEUE_ADD, null);
         }
@@ -131,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private class MyHTTPD extends NanoHTTPD {
-        public MyHTTPD() throws IOException {
+        MyHTTPD() throws IOException {
             super(PORT);
             start();
         }
@@ -140,13 +122,9 @@ public class MainActivity extends AppCompatActivity {
         public Response serve(IHTTPSession session) {
             try {
                 session.parseBody(new HashMap<String, String>());
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (ResponseException e) {
+            } catch (IOException | ResponseException e) {
                 e.printStackTrace();
             }
-            Method method = session.getMethod();
-            String uri = session.getUri();
             Map<String, String> params = session.getParms();
             String pText = params.get("text");
             String pLoc = params.get("locale");
@@ -157,9 +135,9 @@ public class MainActivity extends AppCompatActivity {
 
     private class TtsLocale implements OnInitListener {
         private Locale loc;
-        public TextToSpeech tts;
+        TextToSpeech tts;
 
-        public TtsLocale(Locale loc, Context context) {
+        TtsLocale(Locale loc, Context context) {
             this.loc = loc;
             tts = new TextToSpeech(context, this);
         }
