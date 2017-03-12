@@ -10,7 +10,6 @@ import java.util.Locale;
 
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnInitListener;
-import android.util.Log;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -47,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        ttsEngines = new HashMap<String, TextToSpeech>();
+        ttsEngines = new HashMap<>();
         ttsEngines.put("en", new TtsLocale(Locale.US, this.getApplicationContext()).tts);
         ttsEngines.put("de", new TtsLocale(Locale.GERMAN, this.getApplicationContext()).tts);
 
