@@ -1,21 +1,96 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="ch.limenet.android_speech.android_speech.MainActivity">
+    tools:context="ch.limenet.android_speech.android_speech.MainActivity"
+    tools:layout_editor_absoluteY="81dp"
+    tools:layout_editor_absoluteX="0dp">
 
     <TextView
-        android:id="@android:id/text1"
+        android:id="@+id/status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
         android:fontFamily="sans-serif"
-        android:text="@string/hello_world"
+        android:text="Not yet initialized"
+        android:textAppearance="@android:style/TextAppearance.Small"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         tools:context=".MainActivity" />
-</RelativeLayout>
+
+    <TextView
+        android:id="@+id/languageLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="24dp"
+        android:text="language"
+        android:textAppearance="@android:style/TextAppearance.Medium"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/status" />
+
+    <TextView
+        android:id="@+id/textLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="text"
+        android:textAppearance="@android:style/TextAppearance.Medium"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/languageLabel" />
+
+    <TextView
+        android:id="@+id/outputLanguage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="4dp"
+        android:width="200dp"
+        android:fontFamily="monospace"
+        android:text="N/A"
+        android:textAlignment="viewEnd"
+        android:textAllCaps="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:textAppearance="@android:style/TextAppearance.Small"
+        app:layout_constraintTop_toTopOf="@+id/languageLabel" />
+
+    <TextView
+        android:id="@+id/outputText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="0dp"
+        android:width="200dp"
+        android:fontFamily="monospace"
+        android:text="N/A"
+        android:textAlignment="viewEnd"
+        android:textAllCaps="false"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:textAppearance="@android:style/TextAppearance.Small"
+        app:layout_constraintTop_toTopOf="@+id/textLabel" />
+
+
+    <TextView
+        android:id="@+id/footer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="0dp"
+        android:layout_marginStart="0dp"
+        android:text="made by limenet.ch | Linus Metzler"
+        android:textAppearance="@android:style/TextAppearance.Small"
+        android:onClick="onClickFooter"
+        android:clickable="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:layout_editor_absoluteX="176dp"
+        tools:layout_editor_absoluteY="570dp" />
+
+</android.support.constraint.ConstraintLayout>

@@ -1,9 +1,12 @@
 package ch.limenet.android_speech.android_speech;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
 
 import java.util.HashMap;
 import java.util.Locale;
@@ -16,12 +19,12 @@ import java.io.IOException;
 import java.util.Map;
 
 import android.net.wifi.WifiManager;
+
 import fi.iki.elonen.NanoHTTPD;
 
 public class MainActivity extends AppCompatActivity {
-    private TextView textView;
     private static final int PORT = 8765;
-    private MyHTTPD server;
+    private TtsHTTP server;
     private WifiManager.WifiLock wifiLock;
     private HashMap<String, TextToSpeech> ttsEngines;
 
@@ -29,8 +32,7 @@ public class MainActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        textView = (TextView) findViewById(android.R.id.text1);
-        WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
+        WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
 
         wifiLock = wifiManager.createWifiLock("lock");
         wifiLock.acquire();
@@ -38,10 +40,10 @@ public class MainActivity extends AppCompatActivity {
         int ipAddress = wifiManager.getConnectionInfo().getIpAddress();
         final String formattedIpAddress = String.format(Locale.US, "%d.%d.%d.%d", (ipAddress & 0xff), (ipAddress >> 8 & 0xff),
                 (ipAddress >> 16 & 0xff), (ipAddress >> 24 & 0xff));
-        setText("Please access http://" + formattedIpAddress + ":" + PORT);
+        setTextStatus("Please access http://" + formattedIpAddress + ":" + PORT);
 
         try {
-            server = new MyHTTPD();
+            server = new TtsHTTP();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -53,7 +55,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void speak(String loc, String text) {
-        setText(loc + "\n" + text);
+        setTextOutputLanguage(loc);
+        setTextOutputText(text);
         if (Build.VERSION.SDK_INT >= 21) {
             ttsEngines.get(loc).speak(text, TextToSpeech.QUEUE_ADD, null, loc + text);
         } else {
@@ -101,18 +104,30 @@ public class MainActivity extends AppCompatActivity {
         super.onStop();
     }
 
-    public void setText(final String t) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                textView.setText(t);
-            }
-        });
+    public void setTextStatus(final String t) {
+        TextView tv = (TextView) findViewById(R.id.status);
+        tv.setText(t);
+    }
+
+    public void setTextOutputText(final String t) {
+        TextView tv = (TextView) findViewById(R.id.outputText);
+        tv.setText(t);
+    }
+
+    public void setTextOutputLanguage(final String t) {
+        TextView tv = (TextView) findViewById(R.id.outputLanguage);
+        tv.setText(t);
+    }
+
+    public void onClickFooter(View v) {
+        Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
+        intent.setData(Uri.parse("https://limenet.ch"));
+        startActivity(intent);
     }
 
 
-    private class MyHTTPD extends NanoHTTPD {
-        MyHTTPD() throws IOException {
+    private class TtsHTTP extends NanoHTTPD {
+        TtsHTTP() throws IOException {
             super(PORT);
             start();
         }
