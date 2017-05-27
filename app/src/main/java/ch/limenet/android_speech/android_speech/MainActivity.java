@@ -24,7 +24,7 @@ import fi.iki.elonen.NanoHTTPD;
 
 public class MainActivity extends AppCompatActivity {
     private static final int PORT = 8765;
-    private TtsHTTP server;
+    private Server server;
     private WifiManager.WifiLock wifiLock;
     private HashMap<String, TextToSpeech> ttsEngines;
 
@@ -37,20 +37,24 @@ public class MainActivity extends AppCompatActivity {
         wifiLock = wifiManager.createWifiLock("lock");
         wifiLock.acquire();
 
+        if (!wifiLock.isHeld()) {
+            setTextStatus("Failed to acquire WiFi lock. Are you connected to WiFi?");
+        }
+
         int ipAddress = wifiManager.getConnectionInfo().getIpAddress();
         final String formattedIpAddress = String.format(Locale.US, "%d.%d.%d.%d", (ipAddress & 0xff), (ipAddress >> 8 & 0xff),
                 (ipAddress >> 16 & 0xff), (ipAddress >> 24 & 0xff));
-        setTextStatus("Please access http://" + formattedIpAddress + ":" + PORT);
+        setTextStatus(formattedIpAddress + ":" + PORT);
 
         try {
-            server = new TtsHTTP();
+            server = new Server();
         } catch (IOException e) {
-            e.printStackTrace();
+            setTextStatus("Failed to start the server.");
         }
 
         ttsEngines = new HashMap<>();
-        ttsEngines.put("en", new TtsLocale(Locale.US, this.getApplicationContext()).tts);
-        ttsEngines.put("de", new TtsLocale(Locale.GERMAN, this.getApplicationContext()).tts);
+        ttsEngines.put("en", new LocalizedTTS(Locale.US, this.getApplicationContext()).tts);
+        ttsEngines.put("de", new LocalizedTTS(Locale.GERMAN, this.getApplicationContext()).tts);
 
     }
 
@@ -126,8 +130,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private class TtsHTTP extends NanoHTTPD {
-        TtsHTTP() throws IOException {
+    private class Server extends NanoHTTPD {
+        Server() throws IOException {
             super(PORT);
             start();
         }
@@ -147,11 +151,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private class TtsLocale implements OnInitListener {
+    private class LocalizedTTS implements OnInitListener {
         private Locale loc;
         TextToSpeech tts;
 
-        TtsLocale(Locale loc, Context context) {
+        LocalizedTTS(Locale loc, Context context) {
             this.loc = loc;
             tts = new TextToSpeech(context, this);
         }

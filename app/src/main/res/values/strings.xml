@@ -1,7 +1,5 @@
 <resources>
 
     <string name="app_name">android-speech</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="default_text">Send some text using the text parameter!</string>
 
 </resources>
