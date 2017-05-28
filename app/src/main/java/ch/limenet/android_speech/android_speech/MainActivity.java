@@ -131,6 +131,19 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    private boolean isWifiOnAndConnected() {
+        WifiManager wifiMgr = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+
+        if (wifiMgr.isWifiEnabled()) {
+
+            WifiInfo wifiInfo = wifiMgr.getConnectionInfo();
+
+            if (wifiInfo.getNetworkId() != -1) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     private class Server extends NanoHTTPD {
         Server() throws IOException {
@@ -154,8 +167,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private class LocalizedTTS implements OnInitListener {
-        private Locale loc;
         TextToSpeech tts;
+        private Locale loc;
 
         LocalizedTTS(Locale loc, Context context) {
             this.loc = loc;
@@ -171,19 +184,5 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
-    }
-
-    private boolean isWifiOnAndConnected() {
-        WifiManager wifiMgr = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-
-        if (wifiMgr.isWifiEnabled()) {
-
-            WifiInfo wifiInfo = wifiMgr.getConnectionInfo();
-
-            if (wifiInfo.getNetworkId() != -1) {
-                return true;
-            }
-        }
-        return false;
     }
 }
