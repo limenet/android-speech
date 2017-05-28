@@ -2,7 +2,9 @@ package ch.limenet.android_speech.android_speech;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
 import android.net.Uri;
+import android.net.wifi.WifiInfo;
 import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -32,29 +34,32 @@ public class MainActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
         WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
 
         wifiLock = wifiManager.createWifiLock("lock");
         wifiLock.acquire();
 
-        if (!wifiLock.isHeld()) {
-            setTextStatus("Failed to acquire WiFi lock. Are you connected to WiFi?");
+        if (!wifiLock.isHeld() || !isWifiOnAndConnected()) {
+            setTextStatus("No WiFi connection");
+        } else {
+            int ipAddress = wifiManager.getConnectionInfo().getIpAddress();
+            final String formattedIpAddress = String.format(Locale.US, "%d.%d.%d.%d", (ipAddress & 0xff), (ipAddress >> 8 & 0xff),
+                    (ipAddress >> 16 & 0xff), (ipAddress >> 24 & 0xff));
+            setTextStatus(formattedIpAddress + ":" + PORT);
+
+            try {
+                server = new Server();
+            } catch (IOException e) {
+                setTextStatus("Failed to start the server.");
+            }
+
+            ttsEngines = new HashMap<>();
+            ttsEngines.put("en", new LocalizedTTS(Locale.US, this.getApplicationContext()).tts);
+            ttsEngines.put("de", new LocalizedTTS(Locale.GERMAN, this.getApplicationContext()).tts);
         }
-
-        int ipAddress = wifiManager.getConnectionInfo().getIpAddress();
-        final String formattedIpAddress = String.format(Locale.US, "%d.%d.%d.%d", (ipAddress & 0xff), (ipAddress >> 8 & 0xff),
-                (ipAddress >> 16 & 0xff), (ipAddress >> 24 & 0xff));
-        setTextStatus(formattedIpAddress + ":" + PORT);
-
-        try {
-            server = new Server();
-        } catch (IOException e) {
-            setTextStatus("Failed to start the server.");
-        }
-
-        ttsEngines = new HashMap<>();
-        ttsEngines.put("en", new LocalizedTTS(Locale.US, this.getApplicationContext()).tts);
-        ttsEngines.put("de", new LocalizedTTS(Locale.GERMAN, this.getApplicationContext()).tts);
 
     }
 
@@ -167,4 +172,17 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private boolean isWifiOnAndConnected() {
+        WifiManager wifiMgr = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+
+        if (wifiMgr.isWifiEnabled()) {
+
+            WifiInfo wifiInfo = wifiMgr.getConnectionInfo();
+
+            if (wifiInfo.getNetworkId() != -1) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
