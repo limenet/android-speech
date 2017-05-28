@@ -167,7 +167,11 @@ public class MainActivity extends AppCompatActivity {
 
         public void onInit(int initStatus) {
             if (initStatus == TextToSpeech.SUCCESS) {
-                tts.setLanguage(loc);
+                int result = tts.setLanguage(loc);
+
+                if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                    setTextStatus("TTS locale not supported");
+                }
             }
         }
     }
