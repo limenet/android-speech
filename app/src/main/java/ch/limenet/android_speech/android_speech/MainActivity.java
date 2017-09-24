@@ -2,7 +2,6 @@ package ch.limenet.android_speech.android_speech;
 
 import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
@@ -31,8 +30,6 @@ public class MainActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 
         WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
 
@@ -66,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= 21) {
             ttsEngines.get(loc).speak(text, TextToSpeech.QUEUE_ADD, null, loc + text);
         } else {
+            //noinspection deprecation
             ttsEngines.get(loc).speak(text, TextToSpeech.QUEUE_ADD, null);
         }
     }
@@ -111,17 +109,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void setTextStatus(final String t) {
-        TextView tv = (TextView) findViewById(R.id.status);
+        TextView tv = findViewById(R.id.status);
         tv.setText(t);
     }
 
     public void setTextOutputText(final String t) {
-        TextView tv = (TextView) findViewById(R.id.outputText);
+        TextView tv = findViewById(R.id.outputText);
         tv.setText(t);
     }
 
     public void setTextOutputLanguage(final String t) {
-        TextView tv = (TextView) findViewById(R.id.outputLanguage);
+        TextView tv = findViewById(R.id.outputLanguage);
         tv.setText(t);
     }
 
@@ -162,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
             String pText = params.get("text");
             String pLoc = params.get("locale");
             speak(pLoc, pText);
-            return new NanoHTTPD.Response(Response.Status.OK, "text/plain", pText);
+            return newFixedLengthResponse(Response.Status.OK, "text/plain", pText);
         }
     }
 
